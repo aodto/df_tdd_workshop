@@ -1,13 +1,11 @@
 <?php
-require_once 'WineDaoPdo.php';
+
 use Symfony\Component\HttpFoundation\Request;
 
 class WineController {
-	private $sqlite3 = null;
 	private $wineDao = null;
-	function __construct() {	
-		$this->sqlite3 = new PDO('sqlite:messaging.sqlite3');	
-		$this->wineDao = new WineDaoPdo();
+	function __construct($app) {	
+		$this->wineDao = $app['wine_dao_pdo'];
 	}
 	 
 	function getAllWine() {
@@ -15,7 +13,6 @@ class WineController {
 		return json_encode($wines, true);					
 	}
 	
-
 	function deleteWine($id) {
 	  try{
 			$this->wineDao->deleteWine($id);		

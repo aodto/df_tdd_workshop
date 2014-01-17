@@ -1,19 +1,31 @@
 <?php
 require_once __DIR__.'/vendor/autoload.php'; 
-require 'WineController.php';
+require_once 'WineDaoPdo.php';
+require_once 'WineController.php';
+
 use Symfony\Component\HttpFoundation\Request;
 
 $app = new Silex\Application(); 
 $app['debug'] = true;
 
-$app->get('/wines', 'WineController::getAllWine');
+$app->register(new Silex\Provider\ServiceControllerServiceProvider());
 
-$app->delete('/wines/{id}', 'WineController::deleteWine');
+$app['wine_dao_pdo'] = $app->share(function() {
+  return new WineDaoPdo();
+});
 
-$app->post('/wines', 'WineController::insertWine');
+$app['wines.controller'] = $app->share(function() use ($app) {
+  return new WineController($app);
+});
 
-$app->put('/wines/{id}', 'WineController::updateWine');
+$app->get('/wines', 'wines.controller:getAllWine');
 
-$app->post('/wines/search','WineController::searchWine'); 
+$app->delete('/wines/{id}', 'wines.controller:deleteWine');
+
+$app->post('/wines', 'wines.controller:insertWine');
+
+$app->put('/wines/{id}', 'wines.controller:updateWine');
+
+$app->post('/wines/search','wines.controller:searchWine'); 
 
 $app->run(); 
